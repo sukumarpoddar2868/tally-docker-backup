@@ -1,23 +1,61 @@
 services:
+
+  # ==========================================================
+  # Windows + Tally
+  # ==========================================================
   windows:
     image: dockurr/windows
     container_name: windows
+
     environment:
-      VERSION: "11l" # Windows 11 LTSC
+      VERSION: "11l"
       AUDIO: "Y"
       RAM_SIZE: "2G"
       CPU_CORES: "2"
+
     devices:
       - /dev/kvm
       - /dev/net/tun
+
     cap_add:
       - NET_ADMIN
+
     ports:
-      - 8006:8006
-      - 3389:3389/tcp
-      - 3389:3389/udp
+      - "8006:8006"
+      - "3389:3389/tcp"
+      - "3389:3389/udp"
+
     volumes:
       - ./windows:/storage
       - ./shared:/shared
+
     restart: always
     stop_grace_period: 2m
+
+
+  # ==========================================================
+  # Tally Backup Service
+  # ==========================================================
+  tally-backup:
+    build:
+      context: ./backup-service
+
+    container_name: tally-backup
+
+    volumes:
+      # Tally's backup files
+      # Read-only: backup service cannot modify them
+      - ./shared/Tally_Backups:/data/source:ro
+
+      # Ubuntu snapshot storage
+      - ./backups:/data/backups
+
+    environment:
+      SOURCE_DIR: /data/source
+      BACKUP_ROOT: /data/backups/tally
+
+      # Retention policy
+      FIFTEEN_MIN_RETENTION_DAYS: "7"
+      DAILY_RETENTION_DAYS: "30"
+
+    restart: always

@@ -1,0 +1,14 @@
+# ============================================================
+# Tally Backup Service
+# ============================================================
+
+# Every 15 minutes
+*/15 * * * * root python /app/backup.py snapshot >> /var/log/tally-backup.log 2>&1
+
+
+# Every day at midnight
+0 0 * * * root python /app/backup.py daily >> /var/log/tally-backup.log 2>&1
+
+
+# Cleanup old backups every day at 00:05
+5 0 * * * root python /app/backup.py cleanup >> /var/log/tally-backup.log 2>&1
