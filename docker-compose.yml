@@ -51,6 +51,7 @@ services:
       - ./backups:/data/backups
 
     environment:
+      TZ: Asia/Kolkata
       SOURCE_DIR: /data/source
       BACKUP_ROOT: /data/backups/tally
 
